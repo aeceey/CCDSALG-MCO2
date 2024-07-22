@@ -13,44 +13,50 @@ void readGraphFromFile(const char* filename, Graph* graph) {
         exit(1);
     }
 
-    int numVertices;
-    fscanf(file, "%d\n", &numVertices);  // Read number of vertices and consume newline
+    char line[MAX_LINE_LENGTH];
+    int lineCount = 0;
 
-    char lines[MAX_VERTICES][MAX_LINE_LENGTH];
-    
-    // First pass: Add all vertices
-    for (int i = 0; i < numVertices; i++) {
-        if (fgets(lines[i], sizeof(lines[i]), file) == NULL) {
-            printf("Error reading line from file.\n");
-            exit(1);
-        }
-        lines[i][strcspn(lines[i], "\n")] = 0;  // Remove newline character if present
-        
-        char* token = strtok(lines[i], " ");
-        if (token == NULL) {
-            printf("Error parsing vertex name.\n");
-            exit(1);
-        }
-        addVertex(graph, token);
-    }
+    printf("File contents:\n");
+    while (fgets(line, sizeof(line), file) != NULL) {
+        printf("Line %d: %s", ++lineCount, line);
+        // Remove newline character if present
+        line[strcspn(line, "\n")] = 0;
 
-    // Second pass: Add all edges
-    for (int i = 0; i < numVertices; i++) {
-        char* line = lines[i];
-        char* token = strtok(line, " ");  // Skip vertex name
-        
-        while ((token = strtok(NULL, " ")) != NULL) {
-            if (strcmp(token, "-1") == 0) break;
-            int v2 = findVertexIndex(graph, token);
-            if (v2 == -1) {
-                printf("Error: vertex %s not found.\n", token);
-                exit(1);
+        if (lineCount == 1) {
+            // First line contains the number of vertices
+            int numVertices = atoi(line);
+            printf("Number of vertices: %d\n", numVertices);
+        } else {
+            // Subsequent lines contain vertex and edge information
+            char* token = strtok(line, " ");
+            if (token != NULL) {
+                addVertex(graph, token);
+                printf("Added vertex: %s\n", token);
+
+                while ((token = strtok(NULL, " ")) != NULL) {
+                    printf("  Processing token: %s\n", token);
+                    if (strcmp(token, "-1") == 0) {
+                        printf("  Reached end of line (-1)\n");
+                        break;
+                    }
+                    int v1 = lineCount - 2; // Vertex index is line number minus 2
+                    int v2 = findVertexIndex(graph, token);
+                    printf("  v1: %d, v2: %d\n", v1, v2);
+                    if (v2 != -1) {
+                        addEdge(graph, v1, v2);
+                        printf("  Called addEdge(%d, %d)\n", v1, v2);
+                    } else {
+                        printf("  Error: Vertex not found: %s\n", token);
+                    }
+                }
             }
-            addEdge(graph, i, v2);
         }
     }
 
     fclose(file);
+
+    printf("\nGraph after construction:\n");
+    printGraph(graph);
 }
 
 void writeTraversalsToFile(const char* filename, Graph* graph, int* bfsResult, int* dfsResult, int resultSize) {

@@ -1,6 +1,7 @@
 #include "traversal.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void bfs(Graph* graph, int startVertex, int* result, int* resultSize) {
     bool visited[MAX_VERTICES] = {false};
@@ -14,6 +15,7 @@ void bfs(Graph* graph, int startVertex, int* result, int* resultSize) {
     while (front < rear) {
         int currentVertex = queue[front++];
         result[(*resultSize)++] = currentVertex;
+        printf("BFS visiting: %s\n", graph->vertices[currentVertex].name);  // Debug print
 
         for (int i = 0; i < graph->numVertices; i++) {
             if (graph->adjacencyMatrix[currentVertex][i] && !visited[i]) {

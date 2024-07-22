@@ -19,13 +19,19 @@ void addVertex(Graph* graph, const char* name) {
 }
 
 void addEdge(Graph* graph, int v1, int v2) {
+    printf("Attempting to add edge between %d and %d\n", v1, v2);
     if (v1 >= 0 && v1 < graph->numVertices && v2 >= 0 && v2 < graph->numVertices) {
         if (!graph->adjacencyMatrix[v1][v2]) {  // Only if edge doesn't already exist
             graph->adjacencyMatrix[v1][v2] = true;
             graph->adjacencyMatrix[v2][v1] = true;
             graph->vertices[v1].degree++;
             graph->vertices[v2].degree++;
+            printf("Edge added: %s - %s\n", graph->vertices[v1].name, graph->vertices[v2].name);
+        } else {
+            printf("Edge already exists between %s and %s\n", graph->vertices[v1].name, graph->vertices[v2].name);
         }
+    } else {
+        printf("Invalid vertex indices: %d, %d\n", v1, v2);
     }
 }
 
@@ -35,12 +41,20 @@ int findVertexIndex(Graph* graph, const char* name) {
             return i;
         }
     }
+    printf("Vertex not found: %s\n", name);  // Add this debug print
     return -1;
 }
 
 void printGraph(Graph* graph) {
     for (int i = 0; i < graph->numVertices; i++) {
         printf("%s %d\n", graph->vertices[i].name, graph->vertices[i].degree);
+    }
+    printf("Adjacency Matrix:\n");
+    for (int i = 0; i < graph->numVertices; i++) {
+        for (int j = 0; j < graph->numVertices; j++) {
+            printf("%d ", graph->adjacencyMatrix[i][j]);
+        }
+        printf("\n");
     }
 }
 
